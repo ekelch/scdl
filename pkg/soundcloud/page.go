@@ -84,8 +84,14 @@ func GetFormattedDL(track *SoundData, clientId string) []DownloadTrack {
 	tracks := make([]DownloadTrack, 0)
 	data := track.Transcodes.Transcodings
 	var wg sync.WaitGroup
+	trackChan := make(chan DownloadTrack)
 
 	for _, tcode := range data {
+		// skip qualities
+		if tcode.Format.MimeType == "audio/mpeg" && tcode.Format.Protocol == "hls" {
+			continue
+		}
+
 		wg.Add(1)
 		go func(tcode Transcode) {
 			defer wg.Done()
@@ -95,8 +101,9 @@ func GetFormattedDL(track *SoundData, clientId string) []DownloadTrack {
 			if err != nil && statusCode != http.StatusOK {
 				return
 			}
+
 			q := mapQuality(tcode.ApiUrl, tcode.Format.MimeType)
-			if q == "high" {
+			if q == "ogg" {
 				ext = "ogg"
 			}
 			mediaUrl := Media{}
@@ -111,11 +118,19 @@ func GetFormattedDL(track *SoundData, clientId string) []DownloadTrack {
 				SoundData: track,
 				Ext:       ext,
 			}
-			tracks = append(tracks, tmpTrack)
+			trackChan <- tmpTrack
 
 		}(tcode)
 	}
-	wg.Wait()
+
+	go func() {
+		wg.Wait()
+		close(trackChan)
+	}()
+
+	for track := range trackChan {
+		tracks = append(tracks, track)
+	}
 	return tracks
 }
 
@@ -123,11 +138,9 @@ func GetFormattedDL(track *SoundData, clientId string) []DownloadTrack {
 func mapQuality(url string, format string) string {
 	tmp := strings.Split(url, "/")
 	if tmp[len(tmp)-1] == "hls" && strings.HasPrefix(format, "audio/ogg") {
-		return "high"
-	} else if tmp[len(tmp)-1] == "hls" && strings.HasPrefix(format, "audio/mpeg") {
-		return "medium"
+		return "ogg"
 	}
-	return "low"
+	return "mp3"
 }
 
 func SearchTracksByKeyword(apiUrl string, keyword string, offset int, clientId string) *SearchResult {
