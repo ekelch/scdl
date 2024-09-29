@@ -99,6 +99,14 @@ func selectSearchUrl(searches *soundcloud.SearchResult) *soundcloud.SoundData {
 	return &searches.Sounds[ind]
 }
 
+// search first result
+func selectFirstSearchResult(searches *soundcloud.SearchResult) *soundcloud.SoundData {
+	if len(searches.Sounds) == 0 {
+		panic("No search results, closing.")
+	}
+	return &searches.Sounds[0]
+}
+
 // prompt the input search for a keyword
 func getUserSearch() string {
 

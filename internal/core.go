@@ -12,15 +12,24 @@ import (
 var (
 	defaultQuality = "mp3"
 	soundData      = &soundcloud.SoundData{}
-	SearchLimit    = 6
+	SearchLimit    = 1
 	offset         = 0
 )
 
-func Sc(args []string, downloadPath string, bestQuality bool, search bool) {
-
+func Sc(args []string, downloadPath string, bestQuality bool, search bool, searchFirst bool) {
 	url := ""
-	if len(args) > 0 {
+	searchStr := ""
+
+	if searchFirst {
+		if len(args) < 1 {
+			fmt.Printf("Must provide search string after -f !\n")
+			return
+		}
+		searchStr = args[0]
+		fmt.Println(searchStr)
+	} else if len(args) > 0 {
 		url = args[0]
+		fmt.Printf("setting url to : %s\n", url)
 	}
 
 	if url != "" && !initValidations(url) {
@@ -41,8 +50,13 @@ func Sc(args []string, downloadPath string, bestQuality bool, search bool) {
 
 		// select one to download
 		soundData = selectSearchUrl(searchResult)
-	} else {
+	} else if searchFirst {
+		apiUrl := soundcloud.GetSeachAPIUrl(searchStr, SearchLimit, offset, clientId)
+		searchResult := soundcloud.SearchTracksByKeyword(apiUrl, searchStr, offset, clientId)
 
+		// select one to download
+		soundData = selectFirstSearchResult(searchResult)
+	} else {
 		apiUrl := soundcloud.GetTrackInfoAPIUrl(url, clientId)
 		soundData = soundcloud.GetSoundMetaData(apiUrl, url, clientId)
 		if soundData == nil {

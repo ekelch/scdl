@@ -15,7 +15,7 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "sc <url>",
 	Short: "Sc is a simple CLI application to download soundcloud tracks",
-	Long: `A blazingly fast go program to download tracks from soundcloud 
+	Long: `A blazingly fast go program to download tracks from soundcloud
 		using just the URL, with some cool features and beautiful UI.
 	`,
 	Args:    cobra.ArbitraryArgs,
@@ -28,9 +28,7 @@ var rootCmd = &cobra.Command{
 			}
 			return
 		}
-		// run the core app
-		// FIXME: Probably not the best thing to do lol, it's better to just pass it to the function, who cares.
-		internal.Sc(args, DownloadPath, BestQuality, Search)
+		internal.Sc(args, DownloadPath, BestQuality, Search, SearchFirst)
 	},
 	PreRun: func(cmd *cobra.Command, args []string) {
 		cmd.Flags().Visit(func(f *pflag.Flag) {
@@ -38,6 +36,12 @@ var rootCmd = &cobra.Command{
 				// check if <url> is passed with --search-and-download flag
 				if strings.HasPrefix(args[0], "https") && Search {
 					fmt.Printf("Can't use/pass a %s with --%s flag\n\n", theme.Green("<url>"), theme.Red(f.Name))
+					cmd.Usage()
+					os.Exit(0)
+				}
+				// can only use search or search-first, not both
+				if Search && SearchFirst {
+					fmt.Printf("cannot use both -s and -f flags at same time!\n\n")
 					cmd.Usage()
 					os.Exit(0)
 				}
