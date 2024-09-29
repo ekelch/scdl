@@ -163,7 +163,7 @@ func getTrack(downloadTracks []soundcloud.DownloadTrack, bestQuality bool) sound
 		defaultQuality = getHighestQuality(qualities)
 	}
 
-	return chooseTrackDownload(downloadTracks, defaultQuality)
+	return chooseTrackDownload(downloadTracks, "mp3") // always use mp3
 
 }
 

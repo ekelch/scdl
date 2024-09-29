@@ -26,7 +26,6 @@ func Sc(args []string, downloadPath string, bestQuality bool, search bool, searc
 			return
 		}
 		searchStr = args[0]
-		fmt.Println(searchStr)
 	} else if len(args) > 0 {
 		url = args[0]
 		fmt.Printf("setting url to : %s\n", url)
