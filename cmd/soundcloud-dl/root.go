@@ -42,6 +42,6 @@ func InitConfigVars() {
 	rootCmd.PersistentFlags().BoolVarP(&Search, "search-and-download", "s", false, "Search for tracks by title and prompt one for download ")
 	rootCmd.PersistentFlags().StringVarP(&DownloadPath, "download-path", "p", tmpDLdir, "The download path where tracks are stored.")
 	rootCmd.PersistentFlags().BoolVarP(&BestQuality, "best", "b", false, "Download with the best available quality.")
-	rootCmd.Flags().VarP(&TrackQuality, "quality", "q", "Spcifiy a download quality (MP3/OGG).")
+	rootCmd.Flags().VarP(&TrackQuality, "quality", "q", "Specifiy a download quality (MP3/OGG).")
 	rootCmd.PersistentFlags().BoolVarP(&SearchFirst, "search-first", "f", false, "download first search result")
 }
